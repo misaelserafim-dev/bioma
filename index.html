@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Paletas de cores extraídas de fotos de animais na iNaturalist.">
+  <title>Matriz silvestre — Paletas inspiradas em animais</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://api.inaturalist.org">
+  <link rel="preconnect" href="https://wsrv.nl">
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+
+  <div class="wrap">
+    <header class="hero">
+      <h1 class="logo">Natural</h1>
+      <section class="adder" aria-labelledby="busca-titulo">
+        <h2 id="busca-titulo" class="sr-only">Buscar espécie</h2>
+        <form class="adder-panel" id="searchPanel" role="search">
+          <label class="sr-only" for="searchInput">Nome do animal em português, inglês ou científico</label>
+          <input
+            type="search"
+            id="searchInput"
+            name="q"
+            placeholder="Nome em português, inglês ou científico…"
+            autocomplete="off"
+            enterkeyhint="search"
+            aria-describedby="adderStatus"
+          >
+          <button type="submit" id="searchBtn">Buscar</button>
+        </form>
+        <p class="adder-status" id="adderStatus" role="status" aria-live="polite"></p>
+      </section>
+    </header>
+
+    <main id="conteudo">
+      <h2 class="sr-only">Paletas extraídas</h2>
+      <section class="grid" id="grid" role="list" aria-live="polite" aria-busy="true"></section>
+
+      <nav class="pager" id="pager" aria-label="Paginação das espécies"></nav>
+      <p class="pager-info" id="pagerInfo" role="status" aria-live="polite"></p>
+    </main>
+
+    <footer>
+      <span><strong>Paletas extraídas das fotos da iNaturalist</span>
+      <span>API: iNaturalist · extração no navegador</span>
+    </footer>
+  </div>
+
+  <div
+    class="color-popover"
+    id="colorPopover"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="cpRole"
+    aria-hidden="true"
+  >
+    <div class="cp-swatch-preview" id="cpPreview" aria-hidden="true"></div>
+    <div class="cp-role" id="cpRole">Cor</div>
+    <button class="cp-row" data-format="hex" type="button">
+      <span class="cp-label">HEX</span>
+      <span class="cp-value" id="cpHex"></span>
+      <span class="cp-check" aria-hidden="true">✓</span>
+    </button>
+    <button class="cp-row" data-format="rgb" type="button">
+      <span class="cp-label">RGB</span>
+      <span class="cp-value" id="cpRgb"></span>
+      <span class="cp-check" aria-hidden="true">✓</span>
+    </button>
+    <button class="cp-row" data-format="p3" type="button">
+      <span class="cp-label">P3</span>
+      <span class="cp-value" id="cpP3"></span>
+      <span class="cp-check" aria-hidden="true">✓</span>
+    </button>
+  </div>
+
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js"></script>
+  <script defer src="js/config.js"></script>
+  <script defer src="js/color.js"></script>
+  <script defer src="js/extract.js"></script>
+  <script defer src="js/classify.js"></script>
+  <script defer src="js/api.js"></script>
+  <script defer src="js/popover.js"></script>
+  <script defer src="js/ui.js"></script>
+  <script defer src="js/app.js"></script>
+</body>
+</html>
