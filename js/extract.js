@@ -4,9 +4,11 @@
 
   function extractPaletteLocal(imgEl, n) {
     const MAX = 160;
-    const ratio = Math.min(1, MAX / Math.max(imgEl.naturalWidth, imgEl.naturalHeight));
-    const w = Math.max(1, Math.round(imgEl.naturalWidth * ratio));
-    const h = Math.max(1, Math.round(imgEl.naturalHeight * ratio));
+    const iw = imgEl.naturalWidth || imgEl.width;
+    const ih = imgEl.naturalHeight || imgEl.height;
+    const ratio = Math.min(1, MAX / Math.max(iw, ih));
+    const w = Math.max(1, Math.round(iw * ratio));
+    const h = Math.max(1, Math.round(ih * ratio));
     const canvas = document.createElement("canvas");
     canvas.width = w;
     canvas.height = h;
@@ -112,7 +114,8 @@
 
   Atlas.extractPalette = async function extractPalette(imgEl, n) {
     n = n || 10;
-    if (global.ColorThief && imgEl) {
+    const isRasterImg = !!(imgEl && imgEl.naturalWidth);
+    if (global.ColorThief && isRasterImg) {
       try {
         const thief = new global.ColorThief();
         const palette = thief.getPalette(imgEl, Math.max(8, n), 4);

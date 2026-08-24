@@ -143,14 +143,24 @@
     const url = URL.createObjectURL(file);
     try {
       const img = await loadImage(url);
-      const items = await Atlas.extractPalette(img, 10);
+      let cutout = null;
+      if (Atlas.removeBackgroundFromFile) {
+        try {
+          cutout = await Atlas.removeBackgroundFromFile(file, img, function (msg) {
+            ui.setStatus(msg);
+          });
+        } catch (err) {
+          console.warn("Remocao de fundo indisponivel, usando a foto inteira.", err);
+        }
+      }
+      const items = await Atlas.extractPalette(cutout || img, 10);
       const paleta = Atlas.classifyPalette(items);
       const nome = (file.name.replace(/\.[^.]+$/, "").slice(0, 48)) || "Sua foto";
       ui.prependAnimal({
         id: "upload-" + Date.now(),
         nome: nome,
         latim: "",
-        imgUrl: url,
+        imgUrl: cutout ? cutout.toDataURL("image/png") : url,
         cores: paleta.cores,
         roles: paleta.roles,
         primary: paleta.primary,
