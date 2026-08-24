@@ -37,6 +37,7 @@
     ui.pagerEl.style.display = "";
     renderPager();
     window.scrollTo({ top: 0, behavior: "smooth" });
+    ui.beginProgressiveLoad();
 
     try {
       const json = await Atlas.api.fetchTaxa(page, signal);
@@ -69,9 +70,10 @@
       return;
     }
     const btn = document.getElementById("searchBtn");
-    btn.disabled = true;
-    ui.setStatus("Buscando na iNaturalist…");
-    try {
+      btn.disabled = true;
+      ui.setStatus("Buscando na iNaturalist…");
+      ui.beginProgressiveLoad();
+      try {
       const gen = ++loadGen;
       const signal = cancelInFlight();
       searchMode = true;
@@ -82,7 +84,7 @@
         return t.rank === "species" && Atlas.api.taxonPhoto(t);
       });
       if (!taxa.length) {
-        ui.setStatus("Nenhum animal com foto encontrado. Tenta outro nome.", "error");
+        ui.showMessage("Nenhum animal com foto encontrado. Tenta outro nome.");
         return;
       }
       ui.setStatus("Carregando paletas de " + taxa.length + " espécies…");
@@ -93,7 +95,7 @@
         ? ui.pageAnimals.length + " espécies relacionadas a “" + q + "”"
         : "";
       if (!ui.pageAnimals.length) {
-        ui.setStatus("Achei nomes parecidos, mas as fotos não liberaram as cores.", "error");
+        ui.showMessage("Achei nomes parecidos, mas as fotos não liberaram as cores.");
         return;
       }
       ui.setStatus(ui.pageAnimals.length + " paletas para “" + q + "”. Limpa o campo para voltar à lista.", "ok");
@@ -116,6 +118,55 @@
       ui.setStatus("");
       loadPage(currentPage || 1);
     }, 200);
+  });
+
+  function loadImage(src) {
+    return new Promise(function (resolve, reject) {
+      const img = new Image();
+      img.decoding = "async";
+      img.onload = function () { resolve(img); };
+      img.onerror = function () { reject(new Error("IMG_LOAD_FAILED")); };
+      img.src = src;
+    });
+  }
+
+  const uploadInput = document.getElementById("uploadInput");
+  uploadInput.addEventListener("change", async function () {
+    const file = uploadInput.files && uploadInput.files[0];
+    uploadInput.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      ui.setStatus("Escolhe um arquivo de imagem.", "error");
+      return;
+    }
+    ui.setStatus("Extraindo paleta da sua foto…");
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await loadImage(url);
+      const items = await Atlas.extractPalette(img, 10);
+      const paleta = Atlas.classifyPalette(items);
+      const nome = (file.name.replace(/\.[^.]+$/, "").slice(0, 48)) || "Sua foto";
+      ui.prependAnimal({
+        id: "upload-" + Date.now(),
+        nome: nome,
+        latim: "",
+        imgUrl: url,
+        cores: paleta.cores,
+        roles: paleta.roles,
+        primary: paleta.primary,
+        secondary: paleta.secondary,
+        accent: paleta.accent,
+        harmony: paleta.harmony,
+        contrast: paleta.contrast,
+        contrastOk: paleta.contrastOk,
+      });
+      ui.setStatus("Paleta extraída de “" + nome + "”.", "ok");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      console.error(err);
+      URL.revokeObjectURL(url);
+      ui.setStatus("Não consegui ler essa imagem. Tenta outra.", "error");
+    }
   });
 
   loadPage(1);

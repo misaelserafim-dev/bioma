@@ -8,6 +8,14 @@
     const adderStatus = document.getElementById("adderStatus");
     let pageAnimals = [];
 
+    function nextFrame() {
+      return new Promise(function (resolve) {
+        requestAnimationFrame(function () {
+          requestAnimationFrame(resolve);
+        });
+      });
+    }
+
     function setBusy(busy) {
       grid.setAttribute("aria-busy", busy ? "true" : "false");
     }
@@ -92,26 +100,73 @@
       return card;
     }
 
+    const SKELETON_COUNT = 12;
+
+    function buildSkeletonCard() {
+      const sk = document.createElement("article");
+      sk.className = "card card-skeleton";
+      sk.setAttribute("aria-hidden", "true");
+
+      const frame = document.createElement("div");
+      frame.className = "photo-frame sk-block";
+
+      const chip = document.createElement("div");
+      chip.className = "name-chip";
+      chip.appendChild(Object.assign(document.createElement("span"), { className: "sk-line" }));
+
+      frame.appendChild(chip);
+
+      const meta = document.createElement("div");
+      meta.className = "palette-meta";
+      const row = document.createElement("div");
+      row.className = "role-grid";
+      for (let i = 0; i < 5; i++) {
+        row.appendChild(Object.assign(document.createElement("div"), { className: "sk-dot" }));
+      }
+      const notes = document.createElement("div");
+      notes.className = "palette-notes";
+      for (let i = 0; i < 3; i++) {
+        notes.appendChild(Object.assign(document.createElement("span"), { className: "sk-line" }));
+      }
+      meta.appendChild(row);
+      meta.appendChild(notes);
+
+      sk.appendChild(frame);
+      sk.appendChild(meta);
+      return sk;
+    }
+
     function beginProgressiveLoad() {
       grid.replaceChildren();
       pageAnimals = [];
-      const sk = document.createElement("div");
-      sk.className = "card-skeleton";
-      sk.id = "loadSkeleton";
-      sk.setAttribute("aria-hidden", "true");
-      grid.appendChild(sk);
+      const frag = document.createDocumentFragment();
+      for (let i = 0; i < SKELETON_COUNT; i++) frag.appendChild(buildSkeletonCard());
+      grid.appendChild(frag);
       setBusy(true);
+    }
+
+    function removeOneSkeleton() {
+      const sk = grid.querySelector(".card-skeleton");
+      if (sk) sk.remove();
+    }
+
+    function prependAnimal(animal) {
+      const card = buildCard(animal);
+      card.classList.add("new-card");
+      grid.insertBefore(card, grid.firstChild);
+      return card;
     }
 
     function appendAnimalProgressive(animal) {
       pageAnimals.push(animal);
-      const sk = document.getElementById("loadSkeleton");
-      grid.insertBefore(buildCard(animal), sk);
+      const card = buildCard(animal);
+      const sk = grid.querySelector(".card-skeleton");
+      grid.insertBefore(card, sk || null);
+      removeOneSkeleton();
     }
 
     function endProgressiveLoad() {
-      const sk = document.getElementById("loadSkeleton");
-      if (sk) sk.remove();
+      grid.querySelectorAll(".card-skeleton").forEach(function (sk) { sk.remove(); });
       setBusy(false);
     }
 
@@ -125,6 +180,8 @@
 
     async function processTaxaProgressive(taxa, gen, isCurrent) {
       beginProgressiveLoad();
+      await nextFrame();
+      if (!isCurrent(gen)) return;
       const concurrency = Math.min(Atlas.EXTRACT_CONCURRENCY, taxa.length);
       let index = 0;
       async function worker() {
@@ -226,6 +283,8 @@
       pagerEl: pagerEl,
       pagerInfo: pagerInfo,
       get pageAnimals() { return pageAnimals; },
+      beginProgressiveLoad: beginProgressiveLoad,
+      prependAnimal: prependAnimal,
       processTaxaProgressive: processTaxaProgressive,
       renderPager: renderPager,
       setStatus: setStatus,

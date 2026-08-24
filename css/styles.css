@@ -158,6 +158,31 @@ h1.logo {
   cursor: default;
 }
 
+.upload-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  border: none;
+  background: rgba(29, 29, 31, 0.88);
+  color: #fff;
+  cursor: pointer;
+}
+
+.upload-btn:hover {
+  opacity: 0.85;
+}
+
+.upload-btn:focus-within {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.upload-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
 .adder-status {
   min-height: 0;
   position: absolute;
@@ -221,10 +246,35 @@ h1.logo {
 }
 
 .card-skeleton {
-  height: 280px;
-  background: linear-gradient(90deg, #eee 25%, #f6f6f6 50%, #eee 75%);
+  pointer-events: none;
+}
+
+.sk-block,
+.sk-line,
+.sk-dot {
+  background: linear-gradient(90deg, #e8e8e8 25%, #f4f4f4 50%, #e8e8e8 75%);
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite;
+}
+
+.sk-line {
+  display: inline-block;
+  height: 12px;
+  width: 90px;
+}
+
+.name-chip .sk-line {
+  width: 110px;
+}
+
+.palette-notes .sk-line {
+  border-radius: 999px;
+  width: 64px;
+}
+
+.role-item .sk-dot {
+  aspect-ratio: 3 / 2;
+  width: 100%;
 }
 
 @keyframes shimmer {

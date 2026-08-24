@@ -34,6 +34,15 @@
             aria-describedby="adderStatus"
           >
           <button type="submit" id="searchBtn">Buscar</button>
+          <label class="upload-btn" for="uploadInput" title="Extrair paleta de uma foto sua">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 16V5"/>
+              <path d="m6.5 10.5 5.5-5.5 5.5 5.5"/>
+              <path d="M4 19h16"/>
+            </svg>
+            <span class="sr-only">Enviar foto para extrair paleta</span>
+            <input type="file" id="uploadInput" accept="image/*" class="sr-only">
+          </label>
         </form>
         <p class="adder-status" id="adderStatus" role="status" aria-live="polite"></p>
       </section>
